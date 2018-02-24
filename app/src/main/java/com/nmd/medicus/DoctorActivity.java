@@ -1,5 +1,6 @@
 package com.nmd.medicus;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -34,6 +35,8 @@ public class DoctorActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String  itemValue    = (String) listView.getItemAtPosition(position);
                 Toast.makeText(getApplicationContext(), itemValue, Toast.LENGTH_SHORT).show();
+                Intent myIntent = new Intent(getApplicationContext(), DoctorProfile.class);
+                DoctorActivity.this.startActivity(myIntent);
             }
         });
     }
