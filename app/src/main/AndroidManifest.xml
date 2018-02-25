@@ -20,7 +20,8 @@
         </activity>
         <activity android:name=".DoctorActivity" />
         <activity android:name=".CustomListViewAndroidExample" />
-        <activity android:name=".DoctorProfile"></activity>
+        <activity android:name=".DoctorProfile" />
+        <activity android:name=".MainActivity"></activity>
     </application>
 
 </manifest>

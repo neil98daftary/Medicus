@@ -1,5 +1,6 @@
 package com.nmd.medicus;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -59,5 +60,7 @@ public class CustomListViewAndroidExample extends AppCompatActivity {
         // SHOW ALERT
 
         Toast.makeText(CustomListView,""+tempValues.getCompanyName()+"Image:"+tempValues.getImage()+"Url:"+tempValues.getUrl(),Toast.LENGTH_LONG).show();
+        Intent myIntent = new Intent(getApplicationContext(), DoctorActivity.class);
+        CustomListViewAndroidExample.this.startActivity(myIntent);
     }
 }

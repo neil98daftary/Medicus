@@ -39,10 +39,11 @@
     </LinearLayout>
 
     <TextView
-        android:layout_width="wrap_content"
         android:id="@+id/quotient"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Reliability Quotient"/>
+        android:text="Reliability Quotient"
+        android:layout_gravity="center"/>
 
     <ListView
         android:layout_width="match_parent"

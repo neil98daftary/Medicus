@@ -35,7 +35,7 @@ public class LoginActivity extends AppCompatActivity {
     {
         if (rb.getText().equals("Patient"))
         {
-            Intent myIntent = new Intent(this, DoctorActivity.class);
+            Intent myIntent = new Intent(this, MainActivity.class);
             LoginActivity.this.startActivity(myIntent);
         }
         else
