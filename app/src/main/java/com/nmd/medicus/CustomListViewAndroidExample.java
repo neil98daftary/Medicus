@@ -63,4 +63,9 @@ public class CustomListViewAndroidExample extends AppCompatActivity {
         Intent myIntent = new Intent(getApplicationContext(), DoctorActivity.class);
         CustomListViewAndroidExample.this.startActivity(myIntent);
     }
+
+    public void onBackPressed(){
+        Intent myIntent = new Intent(this, LoginActivity.class);
+        CustomListViewAndroidExample.this.startActivity(myIntent);
+    }
 }

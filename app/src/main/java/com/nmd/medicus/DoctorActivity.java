@@ -35,9 +35,14 @@ public class DoctorActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String  itemValue    = (String) listView.getItemAtPosition(position);
                 Toast.makeText(getApplicationContext(), itemValue, Toast.LENGTH_SHORT).show();
-                Intent myIntent = new Intent(getApplicationContext(), DoctorProfile.class);
+                Intent myIntent = new Intent(getApplicationContext(), DoctorProfilePatient.class);
                 DoctorActivity.this.startActivity(myIntent);
+                finish();
             }
         });
+    }
+    public void onBackPressed(){
+        Intent myIntent = new Intent(this, CustomListViewAndroidExample.class);
+        DoctorActivity.this.startActivity(myIntent);
     }
 }

@@ -1,6 +1,7 @@
 package com.nmd.medicus;
 
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentTransaction;
@@ -10,14 +11,14 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity {
+public class DoctorProfilePatient extends AppCompatActivity {
 
     private ActionBar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_doctor_profile_patient);
 
         toolbar = getSupportActionBar();
 
@@ -62,6 +63,11 @@ public class MainActivity extends AppCompatActivity {
         transaction.replace(R.id.frame_layout, fragment);
         transaction.addToBackStack(null);
         transaction.commit();
+    }
+
+    public void onBackPressed(){
+        Intent myIntent = new Intent(this, DoctorActivity.class);
+        DoctorProfilePatient.this.startActivity(myIntent);
     }
 
 }
