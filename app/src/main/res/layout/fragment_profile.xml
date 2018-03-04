@@ -9,9 +9,11 @@
     <de.hdodenhof.circleimageview.CircleImageView
         android:layout_width="200dp"
         android:layout_height="200dp"
-        android:src="@drawable/doctor"
+
         android:layout_gravity="center_horizontal"
         android:elevation="5sp"/>
+
+    <!--android:src="@drawable/doctor"-->
 
 
 

@@ -1,0 +1,63 @@
+{
+  "project_info": {
+    "project_number": "722665112945",
+    "firebase_url": "https://medicus-186e7.firebaseio.com",
+    "project_id": "medicus-186e7",
+    "storage_bucket": "medicus-186e7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:722665112945:android:65dc4ae1709fe23d",
+        "android_client_info": {
+          "package_name": "com.nmd.medicus"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "722665112945-ps8vvfuc37jm5iaua3rrp693k3153b5h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nmd.medicus",
+            "certificate_hash": "0d1aa60f0edaf574ec22e1ff407e233b65699df0"
+          }
+        },
+        {
+          "client_id": "722665112945-8umqpmgr534u4esjf7ap5s7upq0no2e9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nmd.medicus",
+            "certificate_hash": "0e861b3aef62f8144834f185d1d1c5245e17cf4b"
+          }
+        },
+        {
+          "client_id": "722665112945-eesmiipi2p7shl7oruv0nphk7eu6v7kh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAAN36KCBfIUBsmRh0KevAOmeiSwZm_1LM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "722665112945-eesmiipi2p7shl7oruv0nphk7eu6v7kh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
