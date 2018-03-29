@@ -79,7 +79,7 @@ public class LoginActivity extends AppCompatActivity {
                     name.setText(user.getDisplayName() + "\n" + user.getEmail() + "\n" + user.getUid());
 
                     // Code to save userdata
-                    Log.v("Userdetails",user.getDisplayName()+" "+user.getEmail());
+//                    Log.v("Userdetails",user.getDisplayName()+" "+user.getEmail());
 
 
                     db.collection("users")
@@ -98,16 +98,13 @@ public class LoginActivity extends AppCompatActivity {
                                                                 @Override
                                                                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                                                     if (task.isSuccessful()) {
-                                                                        if(task.getResult().isEmpty()) {
-                                                                            Intent i = new Intent(LoginActivity.this, DoctorProfile.class);
-                                                                            startActivity(i);
-                                                                        }
+//                                                                        Log.v("tag1", "AYYEEEE");
                                                                         for (QueryDocumentSnapshot document : task.getResult()) {
                                                                             if(document.getData().get("uid").equals(user.getUid())) {
-                                                                                Intent i = new Intent(LoginActivity.this, DoctorAppointments.class);
+                                                                                Intent i = new Intent(LoginActivity.this, DoctorProfile.class);
                                                                                 startActivity(i);
                                                                             }
-                                                                            Log.d("tag1", document.getId() + " => " + document.getData().get("type"));
+//                                                                            Log.d("tag1", document.getId() + " => " + document.getData().get("type"));
                                                                         }
                                                                     } else {
                                                                         Log.w("tag1", "Error getting documents.", task.getException());
@@ -121,7 +118,7 @@ public class LoginActivity extends AppCompatActivity {
                                                     startActivity(i);
                                                 }
                                             }
-                                            Log.d("tag1", document.getId() + " => " + document.getData().get("type"));
+//                                            Log.d("tag1", document.getId() + " => " + document.getData().get("type"));
                                         }
                                     } else {
                                         Log.w("tag1", "Error getting documents.", task.getException());
@@ -202,7 +199,7 @@ public class LoginActivity extends AppCompatActivity {
                                                 flag = 1;
                                             }
                                         }
-                                        Log.d("tag1", document.getId() + " => " + document.getData().get("type"));
+//                                        Log.d("tag1", document.getId() + " => " + document.getData().get("type"));
                                     }
                                     if(flag == 0) {
                                         radioGroup.setVisibility(View.VISIBLE);
@@ -248,7 +245,7 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
-                        Log.d("tag1", "DocumentSnapshot added with ID: " + documentReference.getId());
+//                        Log.d("tag1", "DocumentSnapshot added with ID: " + documentReference.getId());
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {

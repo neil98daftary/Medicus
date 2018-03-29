@@ -7,9 +7,9 @@
     tools:context="com.nmd.medicus.SelectAppointmentActivity">
 
     <Button
+        android:id="@+id/selectTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Select time"
-        android:onClick="selecttime"/>
+        android:text="Select time" />
 
 </LinearLayout>
