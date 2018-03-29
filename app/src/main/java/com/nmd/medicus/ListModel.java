@@ -5,41 +5,25 @@ package com.nmd.medicus;
  */
 
 public class ListModel {
-    private  String CompanyName="";
-    private  String Image="";
-    private  String Url="";
+    private  String name;
+    private  String image;
+    private String id;
 
-    /*********** Set Methods ******************/
-
-    public void setCompanyName(String CompanyName)
-    {
-        this.CompanyName = CompanyName;
+    public String getName() {
+        return name;
     }
 
-    public void setImage(String Image)
-    {
-        this.Image = "ic_launcher_round";
+    public String getImage() {
+        return image;
     }
 
-    public void setUrl(String Url)
-    {
-        this.Url = Url;
+    public String getId() {
+        return id;
     }
 
-    /*********** Get Methods ****************/
-
-    public String getCompanyName()
-    {
-        return this.CompanyName;
-    }
-
-    public String getImage()
-    {
-        return this.Image;
-    }
-
-    public String getUrl()
-    {
-        return this.Url;
+    public ListModel(String name, String image, String id) {
+        this.name = name;
+        this.image = image;
+        this.id = id;
     }
 }

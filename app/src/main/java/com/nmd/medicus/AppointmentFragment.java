@@ -1,10 +1,12 @@
 package com.nmd.medicus;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,10 +15,21 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.applandeo.materialcalendarview.CalendarView;
+import com.applandeo.materialcalendarview.EventDay;
+import com.applandeo.materialcalendarview.exceptions.OutOfDateRangeException;
+import com.applandeo.materialcalendarview.listeners.OnDayClickListener;
 
-public class AppointmentFragment extends ListFragment {
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
-    ListView listView;
+
+public class AppointmentFragment extends Fragment {
+
+    private String[] currentDate;
+    private String uid;
 
     public static AppointmentFragment newInstance() {
         AppointmentFragment fragment = new AppointmentFragment();
@@ -27,46 +40,43 @@ public class AppointmentFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        uid = getActivity().getIntent().getStringExtra("uid");
     }
 
-//    @Override
-//    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-//                             Bundle savedInstanceState) {
-//        // Inflate the layout for this fragment
-//        listView = (ListView)getView().findViewById(R.id.listView);
-//        String[] values = new String[] { "Monday 11 am",
-//                "Tuesday 11 am",
-//                "Wednesday 11 am",
-//                "Thursday 11 am",
-//                "Friday 11 am",
-//                "Saturday 11 am",
-//                "Monday 09 am",
-//                "Monday 04 pm"
-//        };
-//        ArrayAdapter<String> doctorAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, android.R.id.text1, values);
-//        listView.setAdapter(doctorAdapter);
-//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                String  itemValue    = (String) listView.getItemAtPosition(position);
-//                Toast.makeText(getActivity(), itemValue, Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//        return inflater.inflate(R.layout.fragment_appointment, container, false);
-//    }
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        String[] values = new String[] { "Android", "iPhone", "WindowsMobile",
-                "Blackberry", "WebOS", "Ubuntu", "Windows7", "Max OS X",
-                "Linux", "OS/2" };
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-                android.R.layout.simple_list_item_1, values);
-        setListAdapter(adapter);
-    }
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View rootView = inflater.inflate(R.layout.fragment_appointment, container, false);
 
-        @Override
-        public void onListItemClick(ListView l, View v, int position, long id) {
-            // TODO implement some logic
+        CalendarView calendarView = (CalendarView) rootView.findViewById(R.id.calendarView);
+
+        Calendar calendar = Calendar.getInstance();
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        Date date = new Date();
+        currentDate = dateFormat.format(date).split("/");
+
+        calendar.set(Integer.parseInt(currentDate[0]), Integer.parseInt(currentDate[1]), Integer.parseInt(currentDate[2]));
+
+        try {
+            calendarView.setDate(calendar);
+        } catch (OutOfDateRangeException e) {
+            e.printStackTrace();
         }
+
+        calendarView.setOnDayClickListener(new OnDayClickListener() {
+            @Override
+            public void onDayClick(EventDay eventDay) {
+                Calendar clickedDayCalendar = eventDay.getCalendar();
+//                Log.v("tag1", clickedDayCalendar.toString());
+                Intent i = new Intent(getActivity(), SelectAppointmentActivity.class);
+                i.putExtra("currentDay", clickedDayCalendar);
+                i.putExtra("uid", uid);
+                startActivity(i);
+            }
+        });
+
+        return rootView;
+    }
 }

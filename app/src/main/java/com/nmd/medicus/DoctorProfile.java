@@ -6,18 +6,27 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.borax12.materialdaterangepicker.date.DatePickerDialog;
+import com.borax12.materialdaterangepicker.time.RadialPickerLayout;
+import com.borax12.materialdaterangepicker.time.TimePickerDialog;
+import com.dpro.widgets.WeekdaysPicker;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -25,17 +34,27 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
 import com.loopj.android.http.*;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cz.msebera.android.httpclient.Header;
 
-public class DoctorProfile extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
+public class DoctorProfile extends AppCompatActivity implements AdapterView.OnItemSelectedListener, TimePickerDialog.OnTimeSetListener {
 
     ListView listView;
     RequestParams requestParams;
@@ -45,11 +64,18 @@ public class DoctorProfile extends AppCompatActivity implements AdapterView.OnIt
     Bitmap bitmap;
     private GoogleApiClient mGoogleApiClient;
     private int PLACE_PICKER_REQUEST = 1;
+    private EditText doc_name, doc_contact;
+    private String location, startTime = "9:00", endTime = "21:00";
+    private Spinner spinner;
+    private WeekdaysPicker widget;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_doctor_profile);
+
+        db = FirebaseFirestore.getInstance();
 
         mGoogleApiClient = new GoogleApiClient
                 .Builder(this)
@@ -59,20 +85,30 @@ public class DoctorProfile extends AppCompatActivity implements AdapterView.OnIt
 
         imagepic = (ImageView)findViewById(R.id.image);
 
+        doc_name = ((TextInputLayout)findViewById(R.id.doc_name)).getEditText();
+        doc_contact = ((TextInputLayout)findViewById(R.id.doc_contact)).getEditText();
+
         // Spinner element
-        Spinner spinner = (Spinner) findViewById(R.id.spinner);
+        spinner = (Spinner) findViewById(R.id.spinner);
 
         // Spinner click listener
         spinner.setOnItemSelectedListener(this);
 
+        widget = (WeekdaysPicker) findViewById(R.id.weekdays);
+
         // Spinner Drop down elements
         ArrayList<String> categories = new ArrayList<String>();
-        categories.add("Automobile");
-        categories.add("Business Services");
-        categories.add("Computers");
-        categories.add("Education");
-        categories.add("Personal");
-        categories.add("Travel");
+        categories.add("GP");
+        categories.add("Oncology");
+        categories.add("Cardiology");
+        categories.add("Paediatry");
+        categories.add("Ophthalmology");
+        categories.add("Neurology");
+        categories.add("Dermatology");
+        categories.add("Anesthesiology");
+        categories.add("Allergy & Immunology");
+        categories.add("Pathology");
+        categories.add("Psychiatry");
 
         // Creating adapter for spinner
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories);
@@ -138,6 +174,66 @@ public class DoctorProfile extends AppCompatActivity implements AdapterView.OnIt
         }
     }
 
+    public void done(View v) {
+        if(!doc_name.getText().toString().equals("") && !doc_contact.getText().toString().equals("") && (location != null)) {
+            FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
+            FirebaseUser user = mFirebaseAuth.getCurrentUser();
+            Map<String, Object> doctorObject = new HashMap<>();
+            doctorObject.put("uid", user.getUid().toString());
+            doctorObject.put("name", doc_name.getText().toString());
+            doctorObject.put("contact", doc_contact.getText().toString());
+            doctorObject.put("email", user.getEmail().toString());
+            doctorObject.put("location", location);
+            doctorObject.put("specialty", spinner.getSelectedItem().toString());
+            doctorObject.put("image", user.getPhotoUrl().toString());
+            doctorObject.put("score", "0");
+            doctorObject.put("days",TextUtils.join("," , widget.getSelectedDaysText()));
+            doctorObject.put("startTime", startTime);
+            doctorObject.put("endTime", endTime);
+            db.collection("doctors")
+                    .add(doctorObject)
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            Intent i = new Intent(DoctorProfile.this, DoctorAppointments.class);
+                            startActivity(i);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+
+                        }
+                    });
+        }
+        else {
+            Toast.makeText(DoctorProfile.this, "Please enter all details", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void openrange(View v) {
+        Calendar now = Calendar.getInstance();
+        TimePickerDialog tpd = TimePickerDialog.newInstance(
+                DoctorProfile.this,
+                now.get(Calendar.HOUR_OF_DAY),
+                now.get(Calendar.MINUTE),
+                false
+        );
+        tpd.show(getFragmentManager(), "Timepickerdialog");
+    }
+
+    @Override
+    public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute, int hourOfDayEnd, int minuteEnd) {
+        String hourString = hourOfDay < 10 ? "0"+hourOfDay : ""+hourOfDay;
+        String minuteString = minute < 10 ? "0"+minute : ""+minute;
+        String hourStringEnd = hourOfDayEnd < 10 ? "0"+hourOfDayEnd : ""+hourOfDayEnd;
+        String minuteStringEnd = minuteEnd < 10 ? "0"+minuteEnd : ""+minuteEnd;
+        String time = "You picked the following time: From - "+hourString+"h"+minuteString+" To - "+hourStringEnd+"h"+minuteStringEnd;
+        startTime = hourString + ":" + minuteString;
+        endTime = hourStringEnd + ":" + minuteStringEnd;
+        Log.v("tag1", time);
+    }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         super.onActivityResult(requestCode, resultCode, data);
@@ -182,7 +278,7 @@ public class DoctorProfile extends AppCompatActivity implements AdapterView.OnIt
             if (resultCode == RESULT_OK) {
                 Place selectedPlace = PlacePicker.getPlace(this, data);
                 // Do something with the place
-                selectedPlace.getLatLng();
+                location = selectedPlace.getLatLng().latitude + "," + selectedPlace.getLatLng().longitude;
                 Log.d("Place: ", selectedPlace.getLatLng().toString());
             }
         }

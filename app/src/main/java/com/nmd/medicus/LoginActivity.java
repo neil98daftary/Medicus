@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -17,16 +18,24 @@ import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.firebase.ui.auth.ui.*;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 
 public class LoginActivity extends AppCompatActivity {
@@ -34,21 +43,30 @@ public class LoginActivity extends AppCompatActivity {
     private RadioGroup radioGroup;
     static RadioButton rb;
     TextView name;
+    private Button continueButton;
 
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     FirebaseUser user;
+    private FirebaseFirestore db;
+
+    private int flag = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
+        radioGroup.setVisibility(View.INVISIBLE);
         radioGroup.clearCheck();
+        continueButton = (Button)findViewById(R.id.continueButton);
+        continueButton.setVisibility(View.INVISIBLE);
 
         mFirebaseAuth = FirebaseAuth.getInstance();
 
         name = (TextView) findViewById(R.id.username);
+
+        db = FirebaseFirestore.getInstance();
 
 
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
@@ -64,7 +82,52 @@ public class LoginActivity extends AppCompatActivity {
                     Log.v("Userdetails",user.getDisplayName()+" "+user.getEmail());
 
 
-
+                    db.collection("users")
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            if(document.getData().get("uid").equals(user.getUid())) {
+                                                if(document.getData().get("type").equals("doctor")) {
+                                                    Toast.makeText(LoginActivity.this, "Already registered as a doctor.", Toast.LENGTH_SHORT).show();
+                                                    db.collection("doctors")
+                                                            .get()
+                                                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                @Override
+                                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                    if (task.isSuccessful()) {
+                                                                        if(task.getResult().isEmpty()) {
+                                                                            Intent i = new Intent(LoginActivity.this, DoctorProfile.class);
+                                                                            startActivity(i);
+                                                                        }
+                                                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                                                            if(document.getData().get("uid").equals(user.getUid())) {
+                                                                                Intent i = new Intent(LoginActivity.this, DoctorAppointments.class);
+                                                                                startActivity(i);
+                                                                            }
+                                                                            Log.d("tag1", document.getId() + " => " + document.getData().get("type"));
+                                                                        }
+                                                                    } else {
+                                                                        Log.w("tag1", "Error getting documents.", task.getException());
+                                                                    }
+                                                                }
+                                                            });
+                                                }
+                                                else if(document.getData().get("type").equals("patient")) {
+                                                    Toast.makeText(LoginActivity.this, "Already registered as a patient.", Toast.LENGTH_SHORT).show();
+                                                    Intent i = new Intent(LoginActivity.this, CustomListViewAndroidExample.class);
+                                                    startActivity(i);
+                                                }
+                                            }
+                                            Log.d("tag1", document.getId() + " => " + document.getData().get("type"));
+                                        }
+                                    } else {
+                                        Log.w("tag1", "Error getting documents.", task.getException());
+                                    }
+                                }
+                            });
 
                 }
                 else {
@@ -91,6 +154,7 @@ public class LoginActivity extends AppCompatActivity {
                 rb = (RadioButton) group.findViewById(checkedId);
                 if (null != rb && checkedId > -1) {
                     Toast.makeText(LoginActivity.this, rb.getText(), Toast.LENGTH_SHORT).show();
+                    continueButton.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -98,12 +162,15 @@ public class LoginActivity extends AppCompatActivity {
 //        ActivityCompat.requestPermissions(LoginActivity.this,
 //                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
 //                1);
-        int PERMISSION_ALL = 1;
-        String[] PERMISSIONS = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE};
 
-        if(!hasPermissions(this, PERMISSIONS)){
-            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
-        }
+
+
+//        int PERMISSION_ALL = 1;
+//        String[] PERMISSIONS = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE};
+//
+//        if(!hasPermissions(this, PERMISSIONS)){
+//            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
+//        }
 
     }
 
@@ -118,6 +185,34 @@ public class LoginActivity extends AppCompatActivity {
                 user = mFirebaseAuth.getCurrentUser();
                 name.setText(user.getDisplayName() + "\n" + user.getEmail() + "\n" + user.getUid());
 
+                db.collection("users")
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                        if(document.getData().get("uid").equals(user.getUid())) {
+                                            if(document.getData().get("type").equals("doctor")) {
+                                                Toast.makeText(LoginActivity.this, "Already registered as a doctor.", Toast.LENGTH_SHORT).show();
+                                                flag = 1;
+                                            }
+                                            else if(document.getData().get("type").equals("patient")) {
+                                                Toast.makeText(LoginActivity.this, "Already registered as a patient.", Toast.LENGTH_SHORT).show();
+                                                flag = 1;
+                                            }
+                                        }
+                                        Log.d("tag1", document.getId() + " => " + document.getData().get("type"));
+                                    }
+                                    if(flag == 0) {
+                                        radioGroup.setVisibility(View.VISIBLE);
+                                    }
+                                } else {
+                                    Log.w("tag1", "Error getting documents.", task.getException());
+                                }
+                            }
+                        });
+
             } else if (resultCode == RESULT_CANCELED) {
                 // Sign in was canceled by the user, finish the activity
                 Toast.makeText(this, "Sign in canceled", Toast.LENGTH_SHORT).show();
@@ -128,16 +223,44 @@ public class LoginActivity extends AppCompatActivity {
 
     public void login(View view)
     {
+        user = mFirebaseAuth.getCurrentUser();
+
+        Map<String, Object> userObject = new HashMap<>();
+        userObject.put("uid", user.getUid());
+
         if (rb.getText().equals("Doctor"))
         {
             Intent myIntent = new Intent(this, DoctorProfile.class);
             LoginActivity.this.startActivity(myIntent);
+
+            userObject.put("type", "doctor");
         }
-        else
+        else if(rb.getText().equals("Patient"))
         {
             Intent myIntent = new Intent(this, CustomListViewAndroidExample.class);
             LoginActivity.this.startActivity(myIntent);
+
+            userObject.put("type", "patient");
         }
+
+        db.collection("users")
+                .add(userObject)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        Log.d("tag1", "DocumentSnapshot added with ID: " + documentReference.getId());
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("tag1", "Error adding document", e);
+                    }
+                });
+
+//        else {
+//            Toast.makeText(LoginActivity.this, "Please choose a profile type.", Toast.LENGTH_SHORT).show();
+//        }
     }
 
     public static boolean hasPermissions(Context context, String... permissions) {
@@ -191,14 +314,15 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    public void logout(View view){
-        AuthUI.getInstance()
-                .signOut(LoginActivity.this)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    public void onComplete(@NonNull Task<Void> task) {
-                        name.setText("");
-                    }
-                });
-
-    }
+//    public void logout(View view){
+//        AuthUI.getInstance()
+//                .signOut(LoginActivity.this)
+//                .addOnCompleteListener(new OnCompleteListener<Void>() {
+//                    public void onComplete(@NonNull Task<Void> task) {
+//                        name.setText("");
+//                    }
+//                });
+//
+//        radioGroup.setVisibility(View.INVISIBLE);
+//    }
 }

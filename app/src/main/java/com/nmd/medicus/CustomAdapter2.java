@@ -16,10 +16,10 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 
 /**
- * Created by neil on 21/2/18.
+ * Created by adityadesai on 29/03/18.
  */
 
-public class CustomAdapter extends BaseAdapter implements View.OnClickListener {
+public class CustomAdapter2 extends BaseAdapter implements View.OnClickListener {
     private Activity activity;
     private ArrayList data;
     private static LayoutInflater inflater=null;
@@ -27,7 +27,7 @@ public class CustomAdapter extends BaseAdapter implements View.OnClickListener {
     ListModel tempValues=null;
     int i=0;
 
-    public CustomAdapter(Activity a, ArrayList d,Resources resLocal) {
+    public CustomAdapter2(Activity a, ArrayList d,Resources resLocal) {
 
         /********** Take passed values **********/
         activity = a;
@@ -128,11 +128,12 @@ public class CustomAdapter extends BaseAdapter implements View.OnClickListener {
         @Override
         public void onClick(View arg0) {
 
-            CustomListViewAndroidExample sct = (CustomListViewAndroidExample)activity;
+            DoctorActivity sct = (DoctorActivity) activity;
 
-            /****  Call  onItemClick Method inside CustomListViewAndroidExample Class ( See Below )****/
+            /****  Call  onItemClick Method inside DoctorActivity Class ( See Below )****/
 
             sct.onItemClick(mPosition);
         }
     }
 }
+
