@@ -4,11 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.nmd.medicus.AppointmentDayActivity">
+    tools:context="com.nmd.medicus.AppointmentDayActivity"
+    android:orientation="vertical">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Appointments:" />
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/appointmentList"
+        android:layout_marginTop="10dp"></ListView>
 
 </LinearLayout>

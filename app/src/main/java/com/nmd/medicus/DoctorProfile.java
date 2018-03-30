@@ -1,6 +1,8 @@
 package com.nmd.medicus;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -69,11 +71,17 @@ public class DoctorProfile extends AppCompatActivity implements AdapterView.OnIt
     private Spinner spinner;
     private WeekdaysPicker widget;
     private FirebaseFirestore db;
+    SharedPreferences docData;
+    SharedPreferences.Editor docEdit;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_doctor_profile);
+
+        docData = getSharedPreferences("Doctors", Context.MODE_PRIVATE);
+        docEdit = docData.edit();
 
         db = FirebaseFirestore.getInstance();
 
@@ -183,15 +191,12 @@ public class DoctorProfile extends AppCompatActivity implements AdapterView.OnIt
             doctorAppointmentObject.put("uid", user.getUid().toString());
             doctorAppointmentObject.put("startTime", startTime);
             doctorAppointmentObject.put("endTime", endTime);
-            db.collection("appointments")
-                    .add(doctorAppointmentObject)
-                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                        @Override
-                        public void onSuccess(DocumentReference documentReference) {
+            db.collection("appointments").document(user.getUid()).set(doctorAppointmentObject).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
 
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
+                }
+            }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
 
@@ -210,6 +215,12 @@ public class DoctorProfile extends AppCompatActivity implements AdapterView.OnIt
             doctorObject.put("days",TextUtils.join("," , widget.getSelectedDaysText()));
             doctorObject.put("startTime", startTime);
             doctorObject.put("endTime", endTime);
+
+            docEdit.putString("uid",user.getUid().toString());
+            docEdit.putString("name",doc_name.getText().toString());
+            docEdit.putString("contact",doc_contact.getText().toString());
+            docEdit.putString("specialty",spinner.getSelectedItem().toString());
+            docEdit.commit();
             db.collection("doctors")
                     .add(doctorObject)
                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {

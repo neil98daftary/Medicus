@@ -8,6 +8,8 @@ import com.applandeo.materialcalendarview.CalendarView;
 import com.applandeo.materialcalendarview.EventDay;
 import com.applandeo.materialcalendarview.exceptions.OutOfDateRangeException;
 import com.applandeo.materialcalendarview.listeners.OnDayClickListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -17,6 +19,7 @@ import java.util.Date;
 public class DoctorAppointments extends AppCompatActivity {
 
     private String[] currentDate;
+    FirebaseUser user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +32,7 @@ public class DoctorAppointments extends AppCompatActivity {
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
         Date date = new Date();
         currentDate = dateFormat.format(date).split("/");
+        user = FirebaseAuth.getInstance().getCurrentUser();
 
         calendar.set(Integer.parseInt(currentDate[0]), Integer.parseInt(currentDate[1]), Integer.parseInt(currentDate[2]));
 
@@ -42,7 +46,10 @@ public class DoctorAppointments extends AppCompatActivity {
             @Override
             public void onDayClick(EventDay eventDay) {
                 Calendar clickedDayCalendar = eventDay.getCalendar();
+                Date clicked = clickedDayCalendar.getTime();
                 Intent i = new Intent(DoctorAppointments.this, AppointmentDayActivity.class);
+                i.putExtra("Date",clickedDayCalendar.get(Calendar.DAY_OF_MONTH) + "/" + clickedDayCalendar.get(Calendar.MONTH) + "/" + clickedDayCalendar.get(Calendar.YEAR));
+                i.putExtra("uid",user.getUid());
                 startActivity(i);
             }
         });

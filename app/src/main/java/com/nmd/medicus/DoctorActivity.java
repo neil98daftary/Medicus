@@ -59,7 +59,8 @@ public class DoctorActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if(task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                Log.v("tag1", document.getData().get("specialty").toString());
+                                //Log.v("tag1", document.getData().get("specialty").toString());
+                                if(document.getData().get("specialty") == null){continue;}
                                 if(document.getData().get("specialty").toString().equals(specialty)) {
                                     CustomListViewValuesArr.add(new ListModel(document.getData().get("name").toString(), document.getData().get("image").toString(), document.getData().get("uid").toString()));
                                 }

@@ -3,6 +3,7 @@ package com.nmd.medicus;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -53,6 +54,9 @@ public class LoginActivity extends AppCompatActivity {
 
     private int flag = 0;
 
+    SharedPreferences docData;
+    SharedPreferences.Editor docEdit;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +72,9 @@ public class LoginActivity extends AppCompatActivity {
         name = (TextView) findViewById(R.id.username);
 
         db = FirebaseFirestore.getInstance();
+
+        docData = getSharedPreferences("Doctors",Context.MODE_PRIVATE);
+        docEdit = docData.edit();
 
 
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
@@ -101,7 +108,7 @@ public class LoginActivity extends AppCompatActivity {
                                                                     if (task.isSuccessful()) {
                                                                         for (QueryDocumentSnapshot document : task.getResult()) {
                                                                             if(document.getData().get("uid").equals(user.getUid())) {
-                                                                                Intent i = new Intent(LoginActivity.this, DoctorProfile.class);
+                                                                                Intent i = new Intent(LoginActivity.this, DoctorAppointments.class);
                                                                                 startActivity(i);
                                                                             }
 //                                                                            Log.d("tag1", document.getId() + " => " + document.getData().get("type"));
@@ -113,28 +120,9 @@ public class LoginActivity extends AppCompatActivity {
                                                             });
                                                 }
                                                 else if(document.getData().get("type").equals("patient")) {
-                                                    Map<String, Object> patientObject = new HashMap<>();
-                                                    patientObject.put("uid", user.getUid().toString());
-                                                    patientObject.put("name", user.getDisplayName());
-                                                    patientObject.put("email", user.getEmail().toString());
-                                                    patientObject.put("image", user.getPhotoUrl().toString());
-
-                                                    db.collection("doctors")
-                                                            .add(patientObject)
-                                                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                                @Override
-                                                                public void onSuccess(DocumentReference documentReference) {
-                                                                    Toast.makeText(LoginActivity.this, "Already registered as a patient.", Toast.LENGTH_SHORT).show();
-                                                                    Intent i = new Intent(LoginActivity.this, CustomListViewAndroidExample.class);
-                                                                    startActivity(i);
-                                                                }
-                                                            })
-                                                            .addOnFailureListener(new OnFailureListener() {
-                                                                @Override
-                                                                public void onFailure(@NonNull Exception e) {
-
-                                                                }
-                                                            });
+                                                    Toast.makeText(LoginActivity.this, "Already registered as a patient.", Toast.LENGTH_SHORT).show();
+                                                    Intent i = new Intent(LoginActivity.this, CustomListViewAndroidExample.class);
+                                                    startActivity(i);
                                                 }
                                             }
 //                                            Log.d("tag1", document.getId() + " => " + document.getData().get("type"));
@@ -211,6 +199,11 @@ public class LoginActivity extends AppCompatActivity {
                                             if(document.getData().get("type").equals("doctor")) {
                                                 Toast.makeText(LoginActivity.this, "Already registered as a doctor.", Toast.LENGTH_SHORT).show();
                                                 flag = 1;
+                                                docEdit.putString("uid",document.getData().get("uid").toString());
+                                                docEdit.putString("name",document.getData().get("name").toString());
+                                                docEdit.putString("contact",document.getData().get("contact").toString());
+                                                docEdit.putString("specialty",document.getData().get("specialty").toString());
+                                                docEdit.commit();
                                             }
                                             else if(document.getData().get("type").equals("patient")) {
                                                 Toast.makeText(LoginActivity.this, "Already registered as a patient.", Toast.LENGTH_SHORT).show();
@@ -252,6 +245,30 @@ public class LoginActivity extends AppCompatActivity {
         }
         else if(rb.getText().equals("Patient"))
         {
+
+            Map<String, Object> patientObject = new HashMap<>();
+            patientObject.put("uid", user.getUid().toString());
+            patientObject.put("name", user.getDisplayName());
+            patientObject.put("email", user.getEmail().toString());
+            patientObject.put("image", user.getPhotoUrl().toString());
+
+            db.collection("patients")
+                    .add(patientObject)
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            Toast.makeText(LoginActivity.this, "Already registered as a patient.", Toast.LENGTH_SHORT).show();
+                            Intent i = new Intent(LoginActivity.this, CustomListViewAndroidExample.class);
+                            startActivity(i);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+
+                        }
+                    });
+
             Intent myIntent = new Intent(this, CustomListViewAndroidExample.class);
             LoginActivity.this.startActivity(myIntent);
 
