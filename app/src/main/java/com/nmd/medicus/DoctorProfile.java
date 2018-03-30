@@ -178,6 +178,26 @@ public class DoctorProfile extends AppCompatActivity implements AdapterView.OnIt
         if(!doc_name.getText().toString().equals("") && !doc_contact.getText().toString().equals("") && (location != null)) {
             FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
             FirebaseUser user = mFirebaseAuth.getCurrentUser();
+
+            Map<String, Object> doctorAppointmentObject = new HashMap<>();
+            doctorAppointmentObject.put("uid", user.getUid().toString());
+            doctorAppointmentObject.put("startTime", startTime);
+            doctorAppointmentObject.put("endTime", endTime);
+            db.collection("appointments")
+                    .add(doctorAppointmentObject)
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+
+                        }
+                    });
+
             Map<String, Object> doctorObject = new HashMap<>();
             doctorObject.put("uid", user.getUid().toString());
             doctorObject.put("name", doc_name.getText().toString());
@@ -231,7 +251,7 @@ public class DoctorProfile extends AppCompatActivity implements AdapterView.OnIt
         String time = "You picked the following time: From - "+hourString+"h"+minuteString+" To - "+hourStringEnd+"h"+minuteStringEnd;
         startTime = hourString + ":" + minuteString;
         endTime = hourStringEnd + ":" + minuteStringEnd;
-        Log.v("tag1", time);
+//        Log.v("tag1", time);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

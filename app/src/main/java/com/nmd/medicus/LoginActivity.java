@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -98,7 +99,6 @@ public class LoginActivity extends AppCompatActivity {
                                                                 @Override
                                                                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                                                     if (task.isSuccessful()) {
-//                                                                        Log.v("tag1", "AYYEEEE");
                                                                         for (QueryDocumentSnapshot document : task.getResult()) {
                                                                             if(document.getData().get("uid").equals(user.getUid())) {
                                                                                 Intent i = new Intent(LoginActivity.this, DoctorProfile.class);
@@ -113,9 +113,28 @@ public class LoginActivity extends AppCompatActivity {
                                                             });
                                                 }
                                                 else if(document.getData().get("type").equals("patient")) {
-                                                    Toast.makeText(LoginActivity.this, "Already registered as a patient.", Toast.LENGTH_SHORT).show();
-                                                    Intent i = new Intent(LoginActivity.this, CustomListViewAndroidExample.class);
-                                                    startActivity(i);
+                                                    Map<String, Object> patientObject = new HashMap<>();
+                                                    patientObject.put("uid", user.getUid().toString());
+                                                    patientObject.put("name", user.getDisplayName());
+                                                    patientObject.put("email", user.getEmail().toString());
+                                                    patientObject.put("image", user.getPhotoUrl().toString());
+
+                                                    db.collection("doctors")
+                                                            .add(patientObject)
+                                                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                                @Override
+                                                                public void onSuccess(DocumentReference documentReference) {
+                                                                    Toast.makeText(LoginActivity.this, "Already registered as a patient.", Toast.LENGTH_SHORT).show();
+                                                                    Intent i = new Intent(LoginActivity.this, CustomListViewAndroidExample.class);
+                                                                    startActivity(i);
+                                                                }
+                                                            })
+                                                            .addOnFailureListener(new OnFailureListener() {
+                                                                @Override
+                                                                public void onFailure(@NonNull Exception e) {
+
+                                                                }
+                                                            });
                                                 }
                                             }
 //                                            Log.d("tag1", document.getId() + " => " + document.getData().get("type"));
@@ -150,7 +169,6 @@ public class LoginActivity extends AppCompatActivity {
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 rb = (RadioButton) group.findViewById(checkedId);
                 if (null != rb && checkedId > -1) {
-                    Toast.makeText(LoginActivity.this, rb.getText(), Toast.LENGTH_SHORT).show();
                     continueButton.setVisibility(View.VISIBLE);
                 }
             }

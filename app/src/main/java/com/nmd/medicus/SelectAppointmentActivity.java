@@ -1,6 +1,5 @@
 package com.nmd.medicus;
 
-import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -8,14 +7,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.TimePicker;
 import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -40,6 +39,7 @@ public class SelectAppointmentActivity extends AppCompatActivity {
     private Button selectTime;
     private String key, startTime, endTime, selectedDay;
     private ArrayList<String> appointmentDays = new ArrayList<>();
+    private HashMap<String, HashMap<String, Date>> dates = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +54,7 @@ public class SelectAppointmentActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
 
-        db.collection("doctors")
+        db.collection("appointments")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -62,18 +62,12 @@ public class SelectAppointmentActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 if(document.getData().get("uid").equals(uid)) {
-                                    if(document.getData().containsKey("appointments")) {
-//                                        appointmentDays = new ArrayList<>(Arrays.asList(document.getData().get("appointments").toString().split(";")));
-                                        Collections.addAll(appointmentDays, document.getData().get("appointments").toString().split(";"));
-                                        for (int j = 0; j < appointmentDays.size(); j++) {
-                                            if(appointmentDays.get(j).split(",")[0].equals(selectedDay)) {
-                                                appointmentString = appointmentDays.get(j);
-                                            }
-                                        }
-                                    }
-                                    key = document.getId();
                                     startTime = document.getData().get("startTime").toString();
                                     endTime = document.getData().get("endTime").toString();
+                                    if(document.getData().containsKey("dates")) {
+                                        dates = (HashMap<String, HashMap<String, Date>>) document.getData().get("dates");
+                                    }
+                                    key = document.getId();
                                 }
                             }
                             selectTime.setVisibility(View.VISIBLE);
@@ -93,8 +87,7 @@ public class SelectAppointmentActivity extends AppCompatActivity {
                             @Override
                             public void onTimeSet(TimePicker view, int hour, int minute) {
                                 try {
-//                                    Log.v("tag1",Integer.toString(hour));
-                                    checkIfAvailable(hour, minute);
+                                    checkIfAvailable2(hour, minute);
                                 } catch (ParseException e) {
                                     e.printStackTrace();
                                 }
@@ -106,6 +99,109 @@ public class SelectAppointmentActivity extends AppCompatActivity {
                 ).show();
             }
         });
+    }
+
+
+//    HashMap<selectedDay, HashMap<Date, patientUID>>
+
+    public void checkIfAvailable2(int hour, int minute) throws ParseException {
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+        Date newDate = sdf.parse(Integer.toString(hour) + ":" + Integer.toString(minute));
+        Date startDate = sdf.parse(startTime);
+        Date endDate = sdf.parse(endTime);
+
+        HashMap<String, Date> times;
+        int i;
+        long firstDifference, nextDifference;
+
+        if(dates != null) {
+            if(dates.containsKey(selectedDay)) {
+                times = dates.get(selectedDay);
+                ArrayList<Date> justTimesNoUid = new ArrayList<>();
+                for (String key : times.keySet()) {
+                    justTimesNoUid.add(times.get(key));
+                }
+                Collections.sort(justTimesNoUid);
+
+                if(newDate.after(startDate) && newDate.before(endDate)) {
+                    if(newDate.after(startDate) && newDate.before(justTimesNoUid.get(0))) {
+                        if(TimeUnit.MILLISECONDS.toMinutes(justTimesNoUid.get(0).getTime() - newDate.getTime()) >= 60) {
+                            times.put(user.getUid().toString(), newDate);
+                            dates.put(selectedDay, times);
+
+                            makeAppointment(dates);
+                        }
+                        else {
+                            Toast.makeText(SelectAppointmentActivity.this, "This slot is unavailable", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    else if(newDate.after(justTimesNoUid.get(justTimesNoUid.size() - 1)) && newDate.before(endDate)) {
+                        if(TimeUnit.MILLISECONDS.toMinutes(newDate.getTime() - justTimesNoUid.get(justTimesNoUid.size() - 1).getTime()) >= 60) {
+                            times.put(user.getUid().toString(), newDate);
+                            dates.put(selectedDay, times);
+                            makeAppointment(dates);
+                        }
+                        else {
+                            Toast.makeText(SelectAppointmentActivity.this, "This slot is unavailable", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    else {
+                        for(i = 0; i <= justTimesNoUid.size() - 2; i++) {
+                            if(newDate.after(justTimesNoUid.get(i)) && newDate.before(justTimesNoUid.get(i + 1))) {
+                                firstDifference = TimeUnit.MILLISECONDS.toMinutes(newDate.getTime() - justTimesNoUid.get(i).getTime());
+                                nextDifference = TimeUnit.MILLISECONDS.toMinutes(justTimesNoUid.get(i + 1).getTime() - newDate.getTime());
+                                if(firstDifference >= 60 && nextDifference >= 60) {
+                                    times.put(user.getUid().toString(), newDate);
+                                    dates.put(selectedDay, times);
+                                    makeAppointment(dates);
+                                }
+                                else {
+                                    Toast.makeText(SelectAppointmentActivity.this, "This slot is unavailable", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }
+                    }
+                }
+                else {
+                    Toast.makeText(SelectAppointmentActivity.this, "The doctor is only available between " + startTime + " and " + endTime, Toast.LENGTH_SHORT).show();
+                }
+
+            }
+            else {
+                times = new HashMap<>();
+                times.put(user.getUid().toString(), newDate);
+                dates.put(selectedDay, times);
+                makeAppointment(dates);
+            }
+        }
+        else {
+            dates = new HashMap<>();
+            times = new HashMap<>();
+            times.put(user.getUid().toString(), newDate);
+            dates.put(selectedDay, times);
+            makeAppointment(dates);
+        }
+    }
+
+    public void makeAppointment(HashMap<String, HashMap<String, Date>> datesToBePushed) {
+        HashMap<String, HashMap<String, HashMap<String, Date>>> data = new HashMap<>();
+        data.put("dates", datesToBePushed);
+        db.collection("appointments").document(key)
+                .set(data, SetOptions.merge())
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                    }
+                });
     }
 
     public void checkIfAvailable(int hour, int minute) throws ParseException {
@@ -136,7 +232,7 @@ public class SelectAppointmentActivity extends AppCompatActivity {
 //                    Log.v("tag1", Long.toString(TimeUnit.MILLISECONDS.toMinutes(myDates.get(0).getTime() - newDate.getTime())));
                     if(TimeUnit.MILLISECONDS.toMinutes(myDates.get(0).getTime() - newDate.getTime()) >= 60) {
                         myTimes.add(sdf.format(newDate));
-                        Log.v("tag1", sdf.format(newDate));
+//                        Log.v("tag1", sdf.format(newDate));
                         makeAppointment(Arrays.toString(myTimes.toArray()).replace("[", "").replace("]", ""));
                     }
                     else{
