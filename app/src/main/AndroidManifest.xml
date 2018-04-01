@@ -37,7 +37,9 @@
 
         <activity android:name=".DoctorAppointments" />
         <activity android:name=".AppointmentDayActivity" />
-        <activity android:name=".SelectAppointmentActivity"></activity>
+        <activity android:name=".SelectAppointmentActivity" />
+        <activity android:name=".PatientProfile" />
+        <activity android:name=".PatientDetails"></activity>
     </application>
 
 </manifest>

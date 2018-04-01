@@ -2,6 +2,7 @@ package com.nmd.medicus;
 
 import android.content.Intent;
 import android.content.res.Resources;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,6 +14,12 @@ import android.widget.Toast;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -20,6 +27,7 @@ public class CustomListViewAndroidExample extends AppCompatActivity {
 
     ListView list;
     CustomAdapter adapter;
+    Resources res;
     public  CustomListViewAndroidExample CustomListView = null;
     public  ArrayList<ListModel> CustomListViewValuesArr = new ArrayList<ListModel>();
 
@@ -31,14 +39,15 @@ public class CustomListViewAndroidExample extends AppCompatActivity {
 
         CustomListView = this;
 
-        setListData();
+        //setListData();
 
-        Resources res =getResources();
+         res = getResources();
         list= ( ListView )findViewById( R.id.list );  // List defined in XML ( See Below )
 
         /**************** Create Custom Adapter *********/
-        adapter=new CustomAdapter( CustomListView, CustomListViewValuesArr,res );
-        list.setAdapter( adapter );
+        CustomListViewAndroidExample.SetList x = new CustomListViewAndroidExample.SetList();
+        x.execute();
+
     }
 
     public void setListData()
@@ -69,8 +78,9 @@ public class CustomListViewAndroidExample extends AppCompatActivity {
     }
 
     public void onBackPressed(){
-        Intent myIntent = new Intent(this, LoginActivity.class);
-        CustomListViewAndroidExample.this.startActivity(myIntent);
+//        Intent myIntent = new Intent(this, LoginActivity.class);
+//        CustomListViewAndroidExample.this.startActivity(myIntent);
+        super.onBackPressed();
     }
 
     @Override
@@ -94,5 +104,19 @@ public class CustomListViewAndroidExample extends AppCompatActivity {
             }
         }
         return false;
+    }
+
+    public class SetList extends AsyncTask<Void,Void,Void> {
+
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            setListData();
+            adapter=new CustomAdapter( CustomListView, CustomListViewValuesArr,res );
+            list.setAdapter( adapter );
+
+            return null;
+        }
     }
 }

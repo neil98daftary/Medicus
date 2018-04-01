@@ -142,6 +142,8 @@ public class CustomAdapter3 extends BaseAdapter implements View.OnClickListener 
             final String nowUid = tempValues.getUid();
             final String nowDay = tempValues.getDay();
 
+
+
             holder.approveButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

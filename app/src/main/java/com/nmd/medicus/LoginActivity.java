@@ -253,28 +253,10 @@ public class LoginActivity extends AppCompatActivity {
                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
                         public void onSuccess(DocumentReference documentReference) {
-                            Map<String, Object> patientObject = new HashMap<>();
-                            patientObject.put("uid", user.getUid().toString());
-                            patientObject.put("name", user.getDisplayName());
-                            patientObject.put("email", user.getEmail().toString());
-                            patientObject.put("image", user.getPhotoUrl().toString());
+                            Toast.makeText(LoginActivity.this, "Already registered as a patient.", Toast.LENGTH_SHORT).show();
+                            Intent myIntent = new Intent(LoginActivity.this, PatientProfile.class);
+                            LoginActivity.this.startActivity(myIntent);
 
-                            db.collection("patients")
-                                    .add(patientObject)
-                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                        @Override
-                                        public void onSuccess(DocumentReference documentReference) {
-                                            Toast.makeText(LoginActivity.this, "Already registered as a patient.", Toast.LENGTH_SHORT).show();
-                                            Intent myIntent = new Intent(LoginActivity.this, CustomListViewAndroidExample.class);
-                                            LoginActivity.this.startActivity(myIntent);
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-
-                                        }
-                                    });
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {

@@ -143,6 +143,8 @@ public class ProfileFragment extends Fragment {
                                                                 @Override
                                                                 public void onSuccess(Void aVoid) {
                                                                     Toast.makeText(rootView.getContext(), "Thank you", Toast.LENGTH_SHORT).show();
+                                                                    review.setVisibility(View.INVISIBLE);
+                                                                    submitButton.setVisibility(View.INVISIBLE);
                                                                 }
                                                             })
                                                             .addOnFailureListener(new OnFailureListener() {
@@ -178,7 +180,12 @@ public class ProfileFragment extends Fragment {
                                     docSpecialty.setText(document.getData().get("specialty").toString());
                                     docContact.setText(document.getData().get("contact").toString());
                                     docEmail.setText(document.getData().get("email").toString());
-                                    docScore.setText(Integer.toString((Integer.parseInt(document.getData().get("score").toString()) / Integer.parseInt(document.getData().get("totalReviews").toString())) * 5));
+                                    if(Integer.parseInt(document.getData().get("totalReviews").toString()) != 0) {
+                                        docScore.setText(Integer.toString((Integer.parseInt(document.getData().get("score").toString()) / Integer.parseInt(document.getData().get("totalReviews").toString())) * 5));
+                                    }
+                                    else{
+                                        docScore.setText("This Doctor han not been reviewed yet");
+                                    }
                                     Picasso.get()
                                             .load(document.getData().get("image").toString())
                                             .into(image);

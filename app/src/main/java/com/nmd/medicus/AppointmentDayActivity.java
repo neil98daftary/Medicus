@@ -100,12 +100,38 @@ public class AppointmentDayActivity extends AppCompatActivity {
 
     public void onItemClick(int mPosition)
     {
-        AppointmentModel tempValues = ( AppointmentModel ) CustomListViewValuesArr.get(mPosition);
+        final AppointmentModel tempValues = ( AppointmentModel ) CustomListViewValuesArr.get(mPosition);
+
+        db.collection("patients").get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                if(document.getData().get("uid").equals(tempValues.getUid())){
+                                    Intent i = new Intent(AppointmentDayActivity.this,PatientDetails.class);
+                                    i.putExtra("name",document.getData().get("name").toString());
+                                    i.putExtra("email",document.getData().get("email").toString());
+                                    i.putExtra("image",document.getData().get("image").toString());
+                                    i.putExtra("phone",document.getData().get("phone").toString());
+                                    i.putExtra("address",document.getData().get("address").toString());
+                                    startActivity(i);
+                                }
+                            }
+                        }
+                        else {
+                            Log.w("tag1", "Error getting documents.", task.getException());
+                        }
+                    }
+                });
+
 
         Toast.makeText(CustomListView,""+tempValues.getName(),Toast.LENGTH_LONG).show();
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:" + tempValues.getEmail().toString()));
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Regarding your appoinment");
-        emailIntent.putExtra(Intent.EXTRA_TEXT, "Dear " + tempValues.getName().toString() + " this to inform you that ");
+        emailIntent.putExtra(Intent.EXTRA_TEXT, "Dear " + tempValues.getName().toString() + " this to inform you that your appoinment has been succesfully conducted");
         startActivity(Intent.createChooser(emailIntent, "Title"));
+
+
     }
 }
