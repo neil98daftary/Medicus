@@ -66,8 +66,8 @@ public class DoctorProfilePatient extends AppCompatActivity {
     }
 
     public void onBackPressed(){
-        Intent myIntent = new Intent(this, DoctorActivity.class);
-        DoctorProfilePatient.this.startActivity(myIntent);
+        Intent myIntent = new Intent(DoctorProfilePatient.this, CustomListViewAndroidExample.class);
+        startActivity(myIntent);
     }
 
 }

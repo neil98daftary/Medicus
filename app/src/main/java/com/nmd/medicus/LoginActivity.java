@@ -3,7 +3,6 @@ package com.nmd.medicus;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -54,9 +53,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private int flag = 0;
 
-    SharedPreferences docData;
-    SharedPreferences.Editor docEdit;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,9 +68,6 @@ public class LoginActivity extends AppCompatActivity {
         name = (TextView) findViewById(R.id.username);
 
         db = FirebaseFirestore.getInstance();
-
-        docData = getSharedPreferences("Doctors",Context.MODE_PRIVATE);
-        docEdit = docData.edit();
 
 
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
@@ -113,6 +106,8 @@ public class LoginActivity extends AppCompatActivity {
                                                                             }
 //                                                                            Log.d("tag1", document.getId() + " => " + document.getData().get("type"));
                                                                         }
+//                                                                        Intent i = new Intent(LoginActivity.this, DoctorProfile.class);
+//                                                                        startActivity(i);
                                                                     } else {
                                                                         Log.w("tag1", "Error getting documents.", task.getException());
                                                                     }
@@ -120,7 +115,6 @@ public class LoginActivity extends AppCompatActivity {
                                                             });
                                                 }
                                                 else if(document.getData().get("type").equals("patient")) {
-                                                    Toast.makeText(LoginActivity.this, "Already registered as a patient.", Toast.LENGTH_SHORT).show();
                                                     Intent i = new Intent(LoginActivity.this, CustomListViewAndroidExample.class);
                                                     startActivity(i);
                                                 }
@@ -199,11 +193,6 @@ public class LoginActivity extends AppCompatActivity {
                                             if(document.getData().get("type").equals("doctor")) {
                                                 Toast.makeText(LoginActivity.this, "Already registered as a doctor.", Toast.LENGTH_SHORT).show();
                                                 flag = 1;
-                                                docEdit.putString("uid",document.getData().get("uid").toString());
-                                                docEdit.putString("name",document.getData().get("name").toString());
-                                                docEdit.putString("contact",document.getData().get("contact").toString());
-                                                docEdit.putString("specialty",document.getData().get("specialty").toString());
-                                                docEdit.commit();
                                             }
                                             else if(document.getData().get("type").equals("patient")) {
                                                 Toast.makeText(LoginActivity.this, "Already registered as a patient.", Toast.LENGTH_SHORT).show();
@@ -224,7 +213,8 @@ public class LoginActivity extends AppCompatActivity {
             } else if (resultCode == RESULT_CANCELED) {
                 // Sign in was canceled by the user, finish the activity
                 Toast.makeText(this, "Sign in canceled", Toast.LENGTH_SHORT).show();
-                finish();
+                finishAffinity();
+                System.exit(0);
             }
         }
     }
@@ -233,63 +223,67 @@ public class LoginActivity extends AppCompatActivity {
     {
         user = mFirebaseAuth.getCurrentUser();
 
-        Map<String, Object> userObject = new HashMap<>();
+        final Map<String, Object> userObject = new HashMap<>();
         userObject.put("uid", user.getUid());
 
         if (rb.getText().equals("Doctor"))
         {
-            Intent myIntent = new Intent(this, DoctorProfile.class);
-            LoginActivity.this.startActivity(myIntent);
-
             userObject.put("type", "doctor");
-        }
-        else if(rb.getText().equals("Patient"))
-        {
-
-            Map<String, Object> patientObject = new HashMap<>();
-            patientObject.put("uid", user.getUid().toString());
-            patientObject.put("name", user.getDisplayName());
-            patientObject.put("email", user.getEmail().toString());
-            patientObject.put("image", user.getPhotoUrl().toString());
-
-            db.collection("patients")
-                    .add(patientObject)
+            db.collection("users")
+                    .add(userObject)
                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
                         public void onSuccess(DocumentReference documentReference) {
-                            Toast.makeText(LoginActivity.this, "Already registered as a patient.", Toast.LENGTH_SHORT).show();
-                            Intent i = new Intent(LoginActivity.this, CustomListViewAndroidExample.class);
-                            startActivity(i);
+                            Intent myIntent = new Intent(LoginActivity.this, DoctorProfile.class);
+                            LoginActivity.this.startActivity(myIntent);
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-
+                            Log.w("tag1", "Error adding document", e);
                         }
                     });
-
-            Intent myIntent = new Intent(this, CustomListViewAndroidExample.class);
-            LoginActivity.this.startActivity(myIntent);
-
-            userObject.put("type", "patient");
         }
+        else if(rb.getText().equals("Patient"))
+        {
+            userObject.put("type", "patient");
+            db.collection("users")
+                    .add(userObject)
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            Map<String, Object> patientObject = new HashMap<>();
+                            patientObject.put("uid", user.getUid().toString());
+                            patientObject.put("name", user.getDisplayName());
+                            patientObject.put("email", user.getEmail().toString());
+                            patientObject.put("image", user.getPhotoUrl().toString());
 
-        db.collection("users")
-                .add(userObject)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-//                        Log.d("tag1", "DocumentSnapshot added with ID: " + documentReference.getId());
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("tag1", "Error adding document", e);
-                    }
-                });
+                            db.collection("patients")
+                                    .add(patientObject)
+                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                        @Override
+                                        public void onSuccess(DocumentReference documentReference) {
+                                            Toast.makeText(LoginActivity.this, "Already registered as a patient.", Toast.LENGTH_SHORT).show();
+                                            Intent myIntent = new Intent(LoginActivity.this, CustomListViewAndroidExample.class);
+                                            LoginActivity.this.startActivity(myIntent);
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
 
+                                        }
+                                    });
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w("tag1", "Error adding document", e);
+                        }
+                    });
+        }
 //        else {
 //            Toast.makeText(LoginActivity.this, "Please choose a profile type.", Toast.LENGTH_SHORT).show();
 //        }

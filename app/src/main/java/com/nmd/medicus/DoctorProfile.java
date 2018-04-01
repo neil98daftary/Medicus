@@ -212,6 +212,7 @@ public class DoctorProfile extends AppCompatActivity implements AdapterView.OnIt
             doctorObject.put("specialty", spinner.getSelectedItem().toString());
             doctorObject.put("image", user.getPhotoUrl().toString());
             doctorObject.put("score", "0");
+            doctorObject.put("totalReviews", "0");
             doctorObject.put("days",TextUtils.join("," , widget.getSelectedDaysText()));
             doctorObject.put("startTime", startTime);
             doctorObject.put("endTime", endTime);

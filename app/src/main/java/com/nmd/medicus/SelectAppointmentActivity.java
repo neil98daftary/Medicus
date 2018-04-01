@@ -189,7 +189,7 @@ public class SelectAppointmentActivity extends AppCompatActivity {
         HashMap<String, HashMap<String, HashMap<String, Date>>> data = new HashMap<>();
         data.put("dates", datesToBePushed);
         db.collection("appointments").document(key)
-                .set(data, SetOptions.merge())
+                .update("dates", datesToBePushed)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {

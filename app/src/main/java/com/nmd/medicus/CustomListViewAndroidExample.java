@@ -2,10 +2,17 @@ package com.nmd.medicus;
 
 import android.content.Intent;
 import android.content.res.Resources;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
 
@@ -64,5 +71,28 @@ public class CustomListViewAndroidExample extends AppCompatActivity {
     public void onBackPressed(){
         Intent myIntent = new Intent(this, LoginActivity.class);
         CustomListViewAndroidExample.this.startActivity(myIntent);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_sign_out: {
+                AuthUI.getInstance()
+                        .signOut(CustomListViewAndroidExample.this)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            public void onComplete(@NonNull Task<Void> task) {
+                                startActivity(new Intent(CustomListViewAndroidExample.this, LoginActivity.class));
+                            }
+                        });
+                break;
+            }
+        }
+        return false;
     }
 }

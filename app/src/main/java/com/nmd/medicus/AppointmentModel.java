@@ -1,26 +1,37 @@
 package com.nmd.medicus;
 
-import java.util.Date;
-
 /**
- * Created by USER on 31-03-2018.
+ * Created by adityadesai on 31/03/18.
  */
 
 public class AppointmentModel {
+    private String name, email, image, uid, day;
 
-    String uid;
-    Date time;
-
-    public AppointmentModel(String uid, Date time) {
+    public AppointmentModel(String name, String email, String image, String uid, String day) {
+        this.name = name;
+        this.email = email;
+        this.image = image;
         this.uid = uid;
-        this.time = time;
+        this.day = day;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getImage() {
+        return image;
     }
 
     public String getUid() {
         return uid;
     }
 
-    public Date getTime() {
-        return time;
+    public String getDay() {
+        return day;
     }
 }

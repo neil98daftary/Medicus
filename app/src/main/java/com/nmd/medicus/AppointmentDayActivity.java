@@ -1,6 +1,8 @@
 package com.nmd.medicus;
 
+import android.content.Intent;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,72 +12,100 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 
 public class AppointmentDayActivity extends AppCompatActivity {
 
-    String selected;
-    String uid;
-    HashMap<String , HashMap<String,Date>> appointments;
-    ArrayList<AppointmentModel> x = new ArrayList<AppointmentModel>();
-    ListView v;
+    private String selectedDay;
+    private FirebaseFirestore db;
+    private FirebaseAuth firebaseAuth;
+    private FirebaseUser user;
+
+    private HashMap<String, HashMap<String, Date>> dates;
+    private HashMap<String, Date> times;
+
+    ListView list;
     CustomAdapter3 adapter;
-    public AppointmentDayActivity  z = null;
+    public  AppointmentDayActivity CustomListView = null;
+    public ArrayList<AppointmentModel> CustomListViewValuesArr = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_appointment_day);
 
-        selected =  getIntent().getStringExtra("Date");
-        uid = getIntent().getStringExtra("uid");
-        v = (ListView) findViewById(R.id.appointmentList);
-        z = this;
+        firebaseAuth = FirebaseAuth.getInstance();
+        user = firebaseAuth.getCurrentUser();
+        db = FirebaseFirestore.getInstance();
 
-        Log.v("uid",uid);
-        Log.v("date",selected);
+        selectedDay = getIntent().getStringExtra("currentDay");
 
-        DocumentReference docRef = FirebaseFirestore.getInstance().collection("appointments").document(uid);
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                appointments = (HashMap<String , HashMap<String,Date>>) task.getResult().getData().get("dates");
-                DocumentSnapshot xx = task.getResult();
-                Log.v("testData",xx.getData().get("startTime").toString());
-            }
-        });
+        CustomListView = this;
 
-        if(!(appointments == null)) {
-            for (Map.Entry<String, HashMap<String, Date>> letterEntry : appointments.entrySet()) {
-                String letter = letterEntry.getKey();
-                if (!letter.equals(selected)) {
-                    continue;
-                }
-                // ...
-                for (Map.Entry<String, Date> nameEntry : letterEntry.getValue().entrySet()) {
-                    String uid = nameEntry.getKey();
-                    Date time = nameEntry.getValue();
-                    x.add(new AppointmentModel(uid, time));
-                    // ...
-                }
-            }
-        }
-        else{Toast.makeText(this,"Nothing Found",Toast.LENGTH_SHORT).show();}
+        list= ( ListView )findViewById( R.id.list );
 
-        Resources res =getResources();
-        adapter = new CustomAdapter3(z,x,res);
-        v.setAdapter(adapter);
-
+        setListData();
     }
 
-    public void onItemClick(int position){
+    public void setListData() {
+        db.collection("appointments")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                if (document.getData().get("uid").equals(user.getUid().toString()) && document.getData().containsKey("dates")) {
+                                    dates = (HashMap<String, HashMap<String, Date>>) document.getData().get("dates");
+                                    times = dates.get(selectedDay);
+                                    for (final String patientUid : times.keySet()) {
+                                        db.collection("patients")
+                                                .get()
+                                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                        if (task.isSuccessful()) {
+                                                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                                                if (document.getData().get("uid").equals(patientUid)) {
+                                                                    String name = document.getData().get("name").toString();
+                                                                    String email = document.getData().get("email").toString();
+                                                                    String image = document.getData().get("image").toString();
+//                                                                    Log.v("tag1", "ENTEREDDDDD");
+                                                                    CustomListViewValuesArr.add(new AppointmentModel(name, email, image, patientUid, selectedDay));
+                                                                }
+                                                            }
+                                                            Resources res =getResources();
+                                                            adapter=new CustomAdapter3( CustomListView, CustomListViewValuesArr,res );
+                                                            list.setAdapter(adapter);
+                                                        }
+                                                    }
+                                                });
+                                    }
+                                }
+                            }
+                        } else {
+                            Log.w("tag1", "Error getting documents.", task.getException());
+                        }
+                    }
+                });
+    }
 
+    public void onItemClick(int mPosition)
+    {
+        AppointmentModel tempValues = ( AppointmentModel ) CustomListViewValuesArr.get(mPosition);
+
+        Toast.makeText(CustomListView,""+tempValues.getName(),Toast.LENGTH_LONG).show();
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:" + tempValues.getEmail().toString()));
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Regarding your appoinment");
+        emailIntent.putExtra(Intent.EXTRA_TEXT, "Dear " + tempValues.getName().toString() + " this to inform you that ");
+        startActivity(Intent.createChooser(emailIntent, "Title"));
     }
 }
