@@ -24,6 +24,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -37,6 +38,7 @@ import org.json.JSONObject;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -128,9 +130,9 @@ public class ProfileFragment extends Fragment {
                                                     String newScore = null;
                                                     String newTotal = null;
                                                     try {
-                                                        newScore = Integer.toString(Integer.parseInt(document.getData().get("score").toString()) + Integer.parseInt(response.get("rating").toString()));
-                                                        newTotal = Integer.toString(Integer.parseInt(document.getData().get("totalReviews").toString()) + 1);
-                                                        docScore.setText(Integer.toString((Integer.parseInt(newScore) / Integer.parseInt(newTotal)) * 5));
+                                                        newScore = Double.toString(Double.parseDouble(document.getData().get("score").toString()) + Double.parseDouble(response.get("rating").toString()));
+                                                        newTotal = Double.toString(Double.parseDouble(document.getData().get("totalReviews").toString()) + 1);
+                                                        docScore.setText(String.format("%.2f", (Double.parseDouble(newScore) / Double.parseDouble(newTotal)) * 5));
                                                     } catch (JSONException e) {
                                                         e.printStackTrace();
                                                     }
@@ -151,6 +153,37 @@ public class ProfileFragment extends Fragment {
                                                                 @Override
                                                                 public void onFailure(@NonNull Exception e) {
                                                                     Toast.makeText(rootView.getContext(), "Failed", Toast.LENGTH_SHORT).show();
+                                                                }
+                                                            });
+
+                                                    db.collection("patients")
+                                                            .get()
+                                                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                @Override
+                                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                    if(task.isSuccessful()) {
+                                                                        for(QueryDocumentSnapshot document : task.getResult()) {
+                                                                            if(document.getData().get("uid").toString().equals(user.getUid().toString())) {
+                                                                                String key = document.getId();
+                                                                                HashMap<String, Object> updateObject = new HashMap<>();
+                                                                                updateObject.put("approvedDoctors", FieldValue.delete());
+                                                                                db.collection("patients").document(key)
+                                                                                        .update(updateObject)
+                                                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                                            @Override
+                                                                                            public void onSuccess(Void aVoid) {
+
+                                                                                            }
+                                                                                        })
+                                                                                        .addOnFailureListener(new OnFailureListener() {
+                                                                                            @Override
+                                                                                            public void onFailure(@NonNull Exception e) {
+
+                                                                                            }
+                                                                                        });
+                                                                            }
+                                                                        }
+                                                                    }
                                                                 }
                                                             });
                                                 }
@@ -180,11 +213,11 @@ public class ProfileFragment extends Fragment {
                                     docSpecialty.setText(document.getData().get("specialty").toString());
                                     docContact.setText(document.getData().get("contact").toString());
                                     docEmail.setText(document.getData().get("email").toString());
-                                    if(Integer.parseInt(document.getData().get("totalReviews").toString()) != 0) {
-                                        docScore.setText(Integer.toString((Integer.parseInt(document.getData().get("score").toString()) / Integer.parseInt(document.getData().get("totalReviews").toString())) * 5));
+                                    if(Double.parseDouble(document.getData().get("totalReviews").toString()) != 0) {
+                                        docScore.setText(String.format("%.2f", (Double.parseDouble(document.getData().get("score").toString()) / Double.parseDouble(document.getData().get("totalReviews").toString())) * 5));
                                     }
                                     else{
-                                        docScore.setText("This Doctor han not been reviewed yet");
+                                        docScore.setText("This Doctor has not been reviewed yet");
                                     }
                                     Picasso.get()
                                             .load(document.getData().get("image").toString())

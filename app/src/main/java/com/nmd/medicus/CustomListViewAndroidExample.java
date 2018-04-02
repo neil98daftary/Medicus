@@ -3,6 +3,7 @@ package com.nmd.medicus;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -30,6 +31,7 @@ public class CustomListViewAndroidExample extends AppCompatActivity {
     Resources res;
     public  CustomListViewAndroidExample CustomListView = null;
     public  ArrayList<ListModel> CustomListViewValuesArr = new ArrayList<ListModel>();
+    boolean doubleBackToExitPressedOnce = false;
 
 
     @Override
@@ -80,7 +82,29 @@ public class CustomListViewAndroidExample extends AppCompatActivity {
     public void onBackPressed(){
 //        Intent myIntent = new Intent(this, LoginActivity.class);
 //        CustomListViewAndroidExample.this.startActivity(myIntent);
-        super.onBackPressed();
+//        super.onBackPressed();
+        if (doubleBackToExitPressedOnce) {
+//            super.onBackPressed();
+//            return;
+//            System.exit(0);
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_HOME);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
+            System.exit(0);
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce=false;
+            }
+        }, 2000);
     }
 
     @Override
