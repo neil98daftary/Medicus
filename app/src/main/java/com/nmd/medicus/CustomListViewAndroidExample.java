@@ -1,5 +1,7 @@
 package com.nmd.medicus;
 
+//This is the listview adapter for specialities
+
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.AsyncTask;

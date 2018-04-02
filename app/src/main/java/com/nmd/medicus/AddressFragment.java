@@ -1,4 +1,7 @@
 package com.nmd.medicus;
+//This java code is for the fragment that contains
+//the map which has the location of the doctors clinic
+
 
 import android.Manifest;
 import android.content.Context;

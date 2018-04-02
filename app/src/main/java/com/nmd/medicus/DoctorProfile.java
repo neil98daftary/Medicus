@@ -1,5 +1,7 @@
 package com.nmd.medicus;
 
+//For doctors to create their profiles
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;

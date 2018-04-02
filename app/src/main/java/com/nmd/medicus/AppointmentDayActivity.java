@@ -1,4 +1,7 @@
 package com.nmd.medicus;
+//This code contains the functions which handle the
+//list of appointments that a doctor will have.
+
 
 import android.content.Intent;
 import android.content.res.Resources;

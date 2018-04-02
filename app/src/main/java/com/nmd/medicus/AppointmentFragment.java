@@ -1,5 +1,5 @@
 package com.nmd.medicus;
-
+//This fragment controls the appointment fragment
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;

@@ -1,5 +1,7 @@
 package com.nmd.medicus;
 
+//Handles the appointments of the doctors
+
 import android.content.Intent;
 import android.os.Handler;
 import android.support.annotation.NonNull;

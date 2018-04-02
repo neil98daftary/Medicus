@@ -1,5 +1,7 @@
 package com.nmd.medicus;
 
+//Listview adapter for doctors list
+
 import android.content.Intent;
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
