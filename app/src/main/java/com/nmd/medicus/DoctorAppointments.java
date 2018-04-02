@@ -1,12 +1,14 @@
 package com.nmd.medicus;
 
 import android.content.Intent;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.applandeo.materialcalendarview.CalendarView;
 import com.applandeo.materialcalendarview.EventDay;
@@ -24,6 +26,7 @@ import java.util.Date;
 public class DoctorAppointments extends AppCompatActivity {
 
     private String[] currentDate;
+    boolean doubleBackToExitPressedOnce = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,5 +83,33 @@ public class DoctorAppointments extends AppCompatActivity {
             }
         }
         return false;
+    }
+
+    public void onBackPressed(){
+//        Intent myIntent = new Intent(this, LoginActivity.class);
+//        CustomListViewAndroidExample.this.startActivity(myIntent);
+//        super.onBackPressed();
+        if (doubleBackToExitPressedOnce) {
+//            super.onBackPressed();
+//            return;
+//            System.exit(0);
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_HOME);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
+            System.exit(0);
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce=false;
+            }
+        }, 2000);
     }
 }

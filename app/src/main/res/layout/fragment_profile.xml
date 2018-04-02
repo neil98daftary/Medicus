@@ -24,7 +24,9 @@
         android:layout_gravity="center"
         android:elevation="5sp"
         app:cardCornerRadius="5sp"
-        android:layout_margin="10sp">
+        android:layout_marginLeft="10sp"
+        android:layout_marginRight="10sp"
+        android:layout_marginTop="20sp">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -36,72 +38,97 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="5sp">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Doctor Name: "/>
+                        android:text="Doctor Name: "
+                        android:textSize="15sp"
+                        android:textStyle="bold"/>
                     <TextView
                         android:id="@+id/docName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        tools:text="Dr. XYZ"/>
+                        tools:text="Dr. XYZ"
+                        android:textSize="15sp"
+                        android:textStyle="italic"/>
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="5sp">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Speciality: "/>
+                        android:text="Speciality: "
+                        android:textSize="15sp"
+                        android:textStyle="bold"/>
                     <TextView
                         android:id="@+id/docSpecialty"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        tools:text="Anaesthetist"/>
+                        tools:text="Anaesthetist"
+                        android:textSize="15sp"
+                        android:textStyle="italic"/>
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="5sp">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Telephone: "/>
+                        android:text="Telephone: "
+                        android:textSize="15sp"
+                        android:textStyle="bold"/>
                     <TextView
                         android:id="@+id/docContact"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        tools:text="022 12345678"/>
+                        tools:text="022 12345678"
+                        android:textSize="15sp"
+                        android:textStyle="italic"/>
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="5sp">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Email: "/>
+                        android:text="Email: "
+                        android:textSize="15sp"
+                        android:textStyle="bold"/>
                     <TextView
                         android:id="@+id/docEmail"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        tools:text="abc@xyz.com"/>
+                        tools:text="abc@xyz.com"
+                        android:textSize="15sp"
+                        android:textStyle="italic"/>
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="5sp">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Reliability Score: "/>
+                        android:text="Reliability Score: "
+                        android:textSize="15sp"
+                        android:textStyle="bold"/>
                     <TextView
                         android:id="@+id/docScore"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        tools:text="3"/>
+                        tools:text="3"
+                        android:textSize="15sp"
+                        android:textStyle="italic"/>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
@@ -112,6 +139,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:orientation="horizontal">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/progressBar"/>
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="0dp"
@@ -130,7 +162,7 @@
         <Button
             android:id="@+id/submitButton"
             android:layout_width="0dp"
-            android:layout_weight="2"
+            android:layout_weight="3"
             android:layout_height="wrap_content"
             android:text="Submit" />
 

@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,6 +55,7 @@ public class ProfileFragment extends Fragment {
     private String uid;
     private RequestParams requestParams;
     private String jsonResponse;
+    private ProgressBar progressBar;
 
     public static ProfileFragment newInstance() {
         ProfileFragment fragment = new ProfileFragment();
@@ -87,6 +89,9 @@ public class ProfileFragment extends Fragment {
         submitButton = (Button)rootView.findViewById(R.id.submitButton);
         review.setVisibility(View.INVISIBLE);
         submitButton.setVisibility(View.INVISIBLE);
+        progressBar = (ProgressBar)rootView.findViewById(R.id.progressBar);
+        progressBar.setIndeterminate(true);
+        progressBar.setVisibility(View.GONE);
 
         db.collection("patients")
                 .get()
@@ -111,12 +116,14 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 requestParams = new RequestParams();
+                progressBar.setVisibility(View.VISIBLE);
                 requestParams.put("sentence", review.getText());
                 AsyncHttpClient client = new AsyncHttpClient();
                 client.post("https://medicus-api.herokuapp.com/get_rating/no_train", requestParams, new JsonHttpResponseHandler(){
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, final JSONObject response) {
                         super.onSuccess(statusCode, headers, response);
+                        progressBar.setVisibility(View.GONE);
                         jsonResponse = response.toString();
                         review.setText("");
                         db.collection("doctors")

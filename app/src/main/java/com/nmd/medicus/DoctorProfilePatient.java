@@ -26,7 +26,7 @@ public class DoctorProfilePatient extends AppCompatActivity {
                 findViewById(R.id.navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        toolbar.setTitle("Shop");
+        toolbar.setTitle("Doctor Profile");
         loadFragment(ProfileFragment.newInstance());
 
     }
@@ -38,17 +38,17 @@ public class DoctorProfilePatient extends AppCompatActivity {
             Fragment fragment;
             switch (item.getItemId()) {
                 case R.id.navigation_shop:
-                    toolbar.setTitle("Shop");
+                    toolbar.setTitle("Doctor Profile");
                     fragment = ProfileFragment.newInstance();
                     loadFragment(fragment);
                     return true;
                 case R.id.navigation_gifts:
-                    toolbar.setTitle("My Gifts");
+                    toolbar.setTitle("Appointments");
                     fragment = AppointmentFragment.newInstance();
                     loadFragment(fragment);
                     return true;
                 case R.id.navigation_cart:
-                    toolbar.setTitle("Cart");
+                    toolbar.setTitle("Address");
                     fragment = AddressFragment.newInstance();
                     loadFragment(fragment);
                     return true;
